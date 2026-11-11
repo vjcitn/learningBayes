@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BST 260 screenbayes warmups</title>
+<style>
+  :root { --fg:#1f2430; --muted:#5b6472; --line:#d9dde4; --accent:#2a5db0; --done:#2e7d4f; --bg:#fff; --card:#f7f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6e8ec; --muted:#9aa3b2; --line:#343a46; --accent:#7aa7ee; --done:#5bbf85; --bg:#14171c; --card:#1b1f26; }
+  }
+  body { font: 16px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+  p.sub { color: var(--muted); margin-top: 0; }
+  .bar { height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; margin: 1rem 0 .25rem; }
+  .bar > div { height: 100%; width: 0; background: var(--done); transition: width .3s; }
+  #count { color: var(--muted); font-size: .9rem; }
+  ol { list-style: none; padding: 0; margin: 1.25rem 0; }
+  li { display: flex; gap: .75rem; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; margin-bottom: .6rem; }
+  li.next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  li.done .title { text-decoration: line-through; color: var(--muted); }
+  input[type=checkbox] { margin-top: .3rem; width: 1.1rem; height: 1.1rem; }
+  .title a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .title a:hover { text-decoration: underline; }
+  .meta { color: var(--muted); font-size: .88rem; }
+  .tag { display: inline-block; font-size: .75rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 .5rem; margin-left: .4rem; color: var(--muted); }
+  .next-flag { font-size: .75rem; color: var(--accent); font-weight: 600; margin-left: .4rem; }
+  footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: .75rem; }
+  button { font: inherit; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: .2rem .6rem; cursor: pointer; }
+  label.team { font-size: .9rem; color: var(--muted); }
+  select { font: inherit; }
+</style>
+</head>
+<body>
+<h1>screenbayes warmups</h1>
+<p class="sub">BST 260. Everyone should work through all seven before the hackathon, in order. Each opens in a new tab; tick it here when you finish. Choosing your team marks the warmups closest to the code you will write.</p>
+
+<label class="team">My team:
+  <select id="team">
+    <option value="">(not chosen)</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+  </select>
+</label>
+
+<div class="bar"><div id="fill"></div></div>
+<div id="count"></div>
+
+<ol id="list"></ol>
+
+<footer>
+  Your ticks are saved in this browser only (not sent anywhere). If you switch computers or clear site data, they start over.
+  <button id="reset" type="button">Reset my checklist</button>
+</footer>
+
+<script>
+const BASE = "https://vjcitn.shinyapps.io/";
+const WARMUPS = [
+  { id:"a", app:"bst260-warmup-a-beta",         title:"A. Beta distributions as beliefs",         teams:[1],       min:40, note:"Shapes; mean, median, mode; a + b as a prior sample size; updating." },
+  { id:"b", app:"bst260-warmup-b-simulation",   title:"B. From Se, Sp and prevalence to the PPV", teams:[2,5],     min:45, note:"Simulation; plug-in vs predictive PPV; target populations." },
+  { id:"c", app:"bst260-warmup-c-intervals",    title:"C. Intervals: equal-tailed and shortest",  teams:[3],       min:40, note:"Quantiles, ETI, HDI, from Beta and from draws." },
+  { id:"d", app:"bst260-warmup-d-loss-shortest",title:"D. Mean, median, mode: different questions", teams:[1,3,4], min:40, note:"Losses; MAP and reparameterisation; P(value > threshold)." },
+  { id:"e", app:"bst260-warmup-e-densities",    title:"E. Densities, MAP and HPD regions",        teams:[4],       min:50, note:"KDE, edge bias, level sets with several pieces." },
+  { id:"f", app:"bst260-warmup-f-ggplot",       title:"F. Building a figure in ggplot2 layers",   teams:[6],       min:40, note:"Area, vlines, interval bars, annotation." },
+  { id:"g", app:"bst260-warmup-g-tests-prs",    title:"G. Tests and the pull-request workflow",   teams:[],        min:45, note:"Everyone. Then do the practice/ exercise in the repo." }
+];
+const KEY = "bst260-warmups-v1";
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+let state = load();
+state.done = state.done || {};
+
+function mine(w, team) { return !!team && w.teams.includes(+team); }
+
+function render() {
+  const team = state.team || "";
+  document.getElementById("team").value = team;
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  const rel = WARMUPS;
+  const nextId = (rel.find(w => !state.done[w.id]) || {}).id;
+  WARMUPS.forEach(w => {
+    const li = document.createElement("li");
+    const yours = mine(w, team);
+    if (state.done[w.id]) li.classList.add("done");
+    if (w.id === nextId) li.classList.add("next");
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = !!state.done[w.id];
+    cb.setAttribute("aria-label", "Mark warmup " + w.id.toUpperCase() + " done");
+    cb.onchange = () => { state.done[w.id] = cb.checked; save(state); render(); };
+    const body = document.createElement("div");
+    const teams = w.id === "g" ? "everyone" : (w.teams.length ? "closest to team " + w.teams.join(", ") : "");
+    body.innerHTML =
+      '<div class="title"><a href="' + BASE + w.app + '/" target="_blank" rel="noopener">' + w.title + '</a>' +
+      (yours ? '<span class="tag" style="border-color:var(--accent);color:var(--accent)">your team\'s code</span>' : '<span class="tag">' + teams + '</span>') +
+      (w.id === nextId ? '<span class="next-flag">next</span>' : '') + '</div>' +
+      '<div class="meta">' + w.note + ' About ' + w.min + ' min.</div>';
+    li.append(cb, body);
+    list.append(li);
+  });
+  const done = rel.filter(w => state.done[w.id]).length;
+  document.getElementById("count").textContent =
+    done + " of " + rel.length + " done" + (team ? "" : " (choose your team to see which warmups are closest to your code)");
+  document.getElementById("fill").style.width = (rel.length ? 100 * done / rel.length : 0) + "%";
+}
+document.getElementById("team").onchange = e => { state.team = e.target.value; save(state); render(); };
+document.getElementById("reset").onclick = () => { if (confirm("Clear all ticks?")) { state = { done: {} }; save(state); render(); } };
+render();
+</script>
+</body>
+</html>
