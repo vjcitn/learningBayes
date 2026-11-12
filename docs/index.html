@@ -43,8 +43,24 @@
 </head>
 <body>
 <h1>screenbayes warmups</h1>
-<p class="sub">BST 260. Everyone should work through all seven before the hackathon, in order. Each opens in a new tab; tick it here when you finish. Choosing your team marks the warmups closest to the code you will write.</p>
+<p class="sub">For Nov 16 2026 BST 260 meeting, we will review approaches to learning about
+the Beta probability distribution and its role in Bayesian analysis of disease screening.</p>
+<p class="sub">Ultimately we may work as collection of teams in a "hackathon" to build a shiny
+app that helps explore aspects of screening policies in different scenarios related to disease
+prevalence and screener accuracy.  But before attempting that, we need to have very clear
+concepts of the underlying probability models and uncertainty measures that we will use
+in a Bayesian framework.  To establish this clarity we have defined (in conjunction with
+Anthropic Claude) a number of "warmup exercises".</p>
+<p class="sub">There are two ways to get access to the interactive warmup sessions.  To 
+work completely on your laptop, use <pre><code>devtools::install_github("vjcitn/screenbayes") # and ensure ggplot2, MASS, 
+                       # shiny, tibble, learnr are installed
+library(screenbayes)
+warmups()  # you will be prompted to select a tutorial </code></pre>
+<p class="sub">To work in a cloud-based session, select from the links below.
+<!--
+<p class="sub">We will work through all seven warmups before the hackathon, in order. Each opens in a new tab; tick it here when you finish. Choosing your team marks the warmups closest to the code you will write.</p>
 
+-->
 <div class="tabs" role="tablist" aria-label="Sections">
   <button role="tab" id="tab-warmups" aria-controls="panel-warmups" aria-selected="true" type="button">Warmups</button>
   <button role="tab" id="tab-build" aria-controls="panel-build" aria-selected="false" tabindex="-1" type="button">What we'll build</button>
