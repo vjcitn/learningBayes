@@ -35,6 +35,8 @@
   .tabs button[aria-selected=true] { color: var(--fg); background: var(--card); border-color: var(--line); font-weight: 600; margin-bottom: -1px; }
   .tabs button:focus-visible { outline: 2px solid var(--accent); }
   [hidden] { display: none !important; }
+  .overview pre { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: .6rem .8rem; overflow-x: auto; font-size: .88rem; }
+  .overview a { color: var(--accent); }
   footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: .75rem; }
   button { font: inherit; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: .2rem .6rem; cursor: pointer; }
   label.team { font-size: .9rem; color: var(--muted); }
@@ -43,30 +45,31 @@
 </head>
 <body>
 <h1>screenbayes warmups</h1>
-<p class="sub">For Nov 16 2026 BST 260 meeting, we will review approaches to learning about
+<div class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true" type="button">Overview</button>
+  <button role="tab" id="tab-warmups" aria-controls="panel-warmups" aria-selected="false" tabindex="-1" type="button">Warmups</button>
+  <button role="tab" id="tab-build" aria-controls="panel-build" aria-selected="false" tabindex="-1" type="button">What we'll build</button>
+</div>
+
+<section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" class="overview">
+<p>For Nov 16 2026 BST 260 meeting, we will review approaches to learning about
 the Beta probability distribution and its role in Bayesian analysis of disease screening.</p>
-<p class="sub">Ultimately we may work as collection of teams in a "hackathon" to build a shiny
+<p>Ultimately we may work as collection of teams in a "hackathon" to build a shiny
 app that helps explore aspects of screening policies in different scenarios related to disease
 prevalence and screener accuracy.  But before attempting that, we need to have very clear
 concepts of the underlying probability models and uncertainty measures that we will use
 in a Bayesian framework.  To establish this clarity we have defined (in conjunction with
 Anthropic Claude) a number of "warmup exercises".</p>
-<p class="sub">There are two ways to get access to the interactive warmup sessions.  To 
-work completely on your laptop, use <pre><code>devtools::install_github("vjcitn/screenbayes") # and ensure ggplot2, MASS, 
+<p>There are two ways to get access to the interactive warmup sessions.  To
+work completely on your laptop, use</p>
+<pre><code>devtools::install_github("vjcitn/screenbayes") # and ensure ggplot2, MASS,
                        # shiny, tibble, learnr are installed
 library(screenbayes)
 warmups()  # you will be prompted to select a tutorial </code></pre>
-<p class="sub">To work in a cloud-based session, select from the links below.
-<!--
-<p class="sub">We will work through all seven warmups before the hackathon, in order. Each opens in a new tab; tick it here when you finish. Choosing your team marks the warmups closest to the code you will write.</p>
+<p>To work in a cloud-based session, open the <a href="#warmups" data-goto="warmups">Warmups</a> tab and select from the links there.</p>
+</section>
 
--->
-<div class="tabs" role="tablist" aria-label="Sections">
-  <button role="tab" id="tab-warmups" aria-controls="panel-warmups" aria-selected="true" type="button">Warmups</button>
-  <button role="tab" id="tab-build" aria-controls="panel-build" aria-selected="false" tabindex="-1" type="button">What we'll build</button>
-</div>
-
-<div id="panel-warmups" role="tabpanel" aria-labelledby="tab-warmups">
+<div id="panel-warmups" role="tabpanel" aria-labelledby="tab-warmups" hidden>
 <label class="team">My team:
   <select id="team">
     <option value="">(not chosen)</option>
@@ -104,7 +107,7 @@ warmups()  # you will be prompted to select a tutorial </code></pre>
     <li>Each team's tests turn green as its functions are implemented, and the matching message in the app disappears.</li>
     <li>When all six are merged, every panel fills in and the integration tests pass. That is the goal.</li>
   </ul>
-  <p style="margin-bottom:0">The warmups below are not the hackathon: they build the understanding you need to write
+  <p style="margin-bottom:0">The warmups (see the Warmups tab) are not the hackathon: they build the understanding you need to write
   those functions with confidence.</p>
 </section>
 
@@ -184,7 +187,11 @@ render();
       }
     });
   });
-  if (location.hash === '#build') show(tabs[1]);
+  const byHash = { '#overview': 0, '#warmups': 1, '#build': 2 };
+  if (location.hash in byHash) show(tabs[byHash[location.hash]]);
+  document.querySelectorAll('[data-goto]').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault(); show(document.getElementById('tab-' + a.dataset.goto));
+  }));
 })();
 </script>
 </body>
